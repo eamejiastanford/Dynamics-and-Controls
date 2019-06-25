@@ -28,6 +28,18 @@ public:
 	// Prints the value
 	void printValue();
 
+	// Default constructor
+	Scalar() {};
+
+	// Constructor with a name
+	Scalar(const std::string &name) { *this = name; };
+
+	// Constructor with a value
+	Scalar(const float &value) { *this = value; };
+
+	// Constructor with a name and value
+	Scalar(const std::string &name, const float &value) { *this = name; *this = value; };
+
 	// Assigns a name to a scalar
 	void operator=(const std::string &name);
 
@@ -52,3 +64,4 @@ public:
 private:
 
 };
+

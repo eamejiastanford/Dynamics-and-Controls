@@ -11,13 +11,11 @@ int main()
 {
 
 	// Initialize list of scalars
-	Scalar x, y, z;
+	Scalar x("x");
+	Scalar y("y",20);
+	Scalar z("z");
 
-	x = "x";
 	x = 13;
-
-	y = "y";
-	y = 30;
 	
 	// Print both variables
 	x.printScalar();
