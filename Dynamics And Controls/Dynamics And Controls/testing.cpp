@@ -2,10 +2,13 @@
 
 #include "pch.h"
 #include <iostream>
+#include <vector>
 
 // Import libraries
 #include "Symbol.h"
 #include "Scalar.h"
+
+using namespace std;
 
 int main()
 {
@@ -15,41 +18,35 @@ int main()
 	Scalar y("y",20);
 	Scalar z("z");
 
+	// Initialize derivatives
+	Scalar xp("x'"), xpp("x''");
+	Scalar yp("y'"), ypp("y''");
+	Scalar zp("z'"), zpp("z''");
+
+	// Assign derivatives
+	vector<Scalar *> derivs = { &xp, &xpp };
+	x.setDerivatives(derivs);
+
 	x = 13;
 	
-	// Print both variables
+	// Print x
 	x.printScalar();
+
+	// Print xp
+	xp.printScalar();
+
 	y.printScalar();
+	y = x + z;
 
-	// Set RHS of y
-	y = x;
-
-	// Reprint y
 	y.printScalar();
-
-	// Reset y
-	y = 45;
-	y.printScalar();
-
-	// Compute z
-	z = "z";
-	z = x + y;
 	z.printScalar();
 
-	// Compute z
-	z = "z";
-	z = x - y;
-	z.printScalar();
+	// Construct a symbolic ode
+	int two = 2;
+	int four = 4;
+	zpp = toScalar(two) * x + toScalar(four) / yp - z * xpp;
 
-	// Compute z
-	z = "z";
-	z = x * y;
-	z.printScalar();
-
-	// Compute z
-	z = "z";
-	z = x / y;
-	z.printScalar();
+	zpp.printScalar();
 
 }
 
