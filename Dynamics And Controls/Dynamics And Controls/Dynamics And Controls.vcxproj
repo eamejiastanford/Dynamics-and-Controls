@@ -154,6 +154,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="scalar.h" />
     <ClInclude Include="symbol.h" />
+    <ClInclude Include="Workspace.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

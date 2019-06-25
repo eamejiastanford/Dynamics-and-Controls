@@ -95,6 +95,8 @@ Scalar Scalar::operator+(const Scalar & b) const
 		c.val = val + b.val;
 	}
 
+	c.printScalar();
+
 	// Add the values
 	return c;
 }
@@ -118,6 +120,8 @@ Scalar Scalar::operator-(const Scalar & b) const
 	if (hasVal && b.hasVal) {
 		c.val = val - b.val;
 	}
+
+	c.printScalar();
 
 	// Add the values
 	return c;
@@ -143,6 +147,8 @@ Scalar Scalar::operator*(const Scalar & b) const
 		c.val = val * b.val;
 	}
 
+	c.printScalar();
+
 	// Add the values
 	return c;
 }
@@ -166,6 +172,8 @@ Scalar Scalar::operator/(const Scalar & b) const
 	if (hasVal && b.hasVal) {
 		c.val = val / b.val;
 	}
+
+	c.printScalar();
 
 	// Add the values
 	return c;

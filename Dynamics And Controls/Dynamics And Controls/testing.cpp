@@ -28,25 +28,12 @@ int main()
 	x.setDerivatives(derivs);
 
 	x = 13;
-	
-	// Print x
-	x.printScalar();
-
-	// Print xp
-	xp.printScalar();
-
-	y.printScalar();
-	y = x + z;
-
-	y.printScalar();
-	z.printScalar();
 
 	// Construct a symbolic ode
 	int two = 2;
 	int four = 4;
-	zpp = toScalar(two) * x + toScalar(four) / yp - z * xpp;
+	zpp = toScalar(two) * x + toScalar(four) / (yp - z * xpp);
 
-	zpp.printScalar();
 
 }
 
