@@ -32,8 +32,15 @@ int main()
 	// Construct a symbolic ode
 	int two = 2;
 	int four = 4;
+	yp = 12;
+	z = -2;
+	xpp = 2;
 	zpp = toScalar(two) * x + toScalar(four) / (yp - z * xpp);
 
+	zpp.printScalar();
 
+	xpp = 5;
+	xpp.printScalar();
+	zpp.printScalar();
 }
 

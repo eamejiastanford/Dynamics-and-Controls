@@ -57,9 +57,10 @@ void Scalar::printDerivsHelper()
 
 void Scalar::operator=(const std::string & newName)
 {
-	// Set name and default RHS to identity
+	// Set name and default RHS to identity, reset value
 	sym.name = newName;
 	sym.rhs = newName;
+	hasVal = false;
 }
 
 void Scalar::operator=(const float & newValue)
@@ -73,10 +74,11 @@ void Scalar::operator=(const float & newValue)
 void Scalar::operator=(const Scalar & b)
 {
 	// Set symbolic RHS
-	sym.rhs = b.sym.name;
+	sym.rhs = cleanName(b.sym.name);
 
 	// Reassign value, if necessary
 	if (b.hasVal) {
+		hasVal = true;
 		val = b.val;
 	}
 
@@ -88,14 +90,13 @@ Scalar Scalar::operator+(const Scalar & b) const
 	Scalar c;
 
 	// Add the symbols
-	c.sym.name = sym.name + " + " + b.sym.name;
+	c.sym.name = "(" + sym.name + " + " + b.sym.name + ")";
 
 	// Add the values, if possible
 	if (hasVal && b.hasVal) {
+		c.hasVal = true;
 		c.val = val + b.val;
 	}
-
-	c.printScalar();
 
 	// Add the values
 	return c;
@@ -114,14 +115,13 @@ Scalar Scalar::operator-(const Scalar & b) const
 	Scalar c;
 
 	// Subtract the symbols
-	c.sym.name = sym.name + " - " + b.sym.name;
+	c.sym.name = "(" + sym.name + " - " + b.sym.name + ")";
 
 	// Subtract the values, if possible
 	if (hasVal && b.hasVal) {
+		c.hasVal = true;
 		c.val = val - b.val;
 	}
-
-	c.printScalar();
 
 	// Add the values
 	return c;
@@ -140,14 +140,13 @@ Scalar Scalar::operator*(const Scalar & b) const
 	Scalar c;
 
 	// Multiply the symbols and the values
-	c.sym.name = sym.name + " * " + b.sym.name;
+	c.sym.name = "(" + sym.name + " * " + b.sym.name + ")";
 
 	// Multiply the values, if possible
 	if (hasVal && b.hasVal) {
+		c.hasVal = true;
 		c.val = val * b.val;
 	}
-
-	c.printScalar();
 
 	// Add the values
 	return c;
@@ -166,14 +165,13 @@ Scalar Scalar::operator/(const Scalar & b) const
 	Scalar c;
 
 	// Divide the symbols
-	c.sym.name = sym.name + " / " + b.sym.name;
+	c.sym.name = "(" + sym.name + " / " + b.sym.name + ")";
 
 	// Divide the values, if possible
 	if (hasVal && b.hasVal) {
+		c.hasVal = true;
 		c.val = val / b.val;
 	}
-
-	c.printScalar();
 
 	// Add the values
 	return c;
@@ -200,21 +198,6 @@ void Scalar::setDerivatives(std::vector<Scalar *> derivs)
 		// Move on to next scalar
 		currentScalar = derivs[i];
 	}
-
-
-
-
-
-
-	//// Assign the derivative of this symbol
-	//deriv = derivs[0];
-	//hasDeriv = true;
-
-	//// Recursively assign derivatives to next symbol
-	//if ( derivs.size() > 1) {
-	//	std::vector<Scalar *> nextDerivs
-	//	derivs[0]->setDerivatives(derivs);
-	//}
 }
 
 Scalar toScalar(const float & b)
@@ -222,4 +205,20 @@ Scalar toScalar(const float & b)
 	Scalar bScalar(std::to_string(b));
 	bScalar = b;
 	return bScalar;
+}
+
+float RightHandSide::eval()
+{
+	switch (type) {
+	case primitive: return val; // base case
+		break;
+	case addition: return a->eval() + b->eval();
+		break;
+	case subtraction: return a->eval() - b->eval();
+		break;
+	case multiplication: return a->eval() * b->eval();
+		break;
+	case division: return a->eval() / b->eval();
+	}
+	return 0.0f;
 }

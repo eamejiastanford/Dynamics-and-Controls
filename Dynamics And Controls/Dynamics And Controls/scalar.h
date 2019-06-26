@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 
-// Defines the scalar class object
+// Defines the scalar class object and helper subclasses
 // A scalar is a real number with a sense of positive or negative
 
 #include "Symbol.h"
@@ -10,6 +10,29 @@
 
 // The scalar can be constant, variable, or specified with a function
 enum scalarType { constant, variable, specified };
+
+// The right hand side of the scalar can be a primitive or an operator (+, -, *, /)
+enum rhsType { primitive, addition, subtraction, multiplication, division };
+
+// Defines the RHS of a scalar
+class RightHandSide
+{
+public:
+	// The type of RHS, defined above
+	rhsType type;
+
+	// The operands
+	RightHandSide *a;
+	RightHandSide *b;
+
+	// Evaluates the right hand side
+	float eval();
+
+private:
+
+	// Primitive value
+	float val;
+};
 
 class Scalar
 {
@@ -32,6 +55,9 @@ public:
 
 	// Link to the derivative of the scalar with respect to time
 	Scalar *deriv;
+
+	// The right hand side of the scalar
+	RightHandSide rhs;
 
 	// Prints a scalar (symbol and value)
 	void printScalar();
