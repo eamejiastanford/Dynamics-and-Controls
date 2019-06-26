@@ -14,10 +14,16 @@ enum scalarType { constant, variable, specified };
 // The right hand side of the scalar can be a primitive or an operator (+, -, *, /)
 enum rhsType { primitive, addition, subtraction, multiplication, division };
 
+class Scalar;
+
 // Defines the RHS of a scalar
 class RightHandSide
 {
 public:
+
+	// The symbolic representation of the RHS
+	Symbol sym;
+
 	// The type of RHS, defined above
 	rhsType type;
 
@@ -25,13 +31,14 @@ public:
 	RightHandSide *a;
 	RightHandSide *b;
 
+	// Primitive scalar
+	Scalar *prim;
+
 	// Evaluates the right hand side
 	float eval();
 
 private:
 
-	// Primitive value
-	float val;
 };
 
 class Scalar
@@ -59,11 +66,14 @@ public:
 	// The right hand side of the scalar
 	RightHandSide rhs;
 
+	// Flag to check if the scalar has a rhs
+	bool hasRHS;
+
 	// Prints a scalar (symbol and value)
 	void printScalar();
 
 	// Default constructor
-	Scalar() { hasDeriv = false; hasVal = false; };
+	Scalar() { hasDeriv = false; hasVal = false; hasRHS = false; };
 
 	// Constructor with a name
 	Scalar(const std::string &name) { *this = name; };
@@ -81,26 +91,33 @@ public:
 	void operator=(const float &val);
 
 	// Assigs a right hand side to a scalar
-	void operator=(const Scalar &b);
+	void operator=(const RightHandSide &b);
 
 	// Adds two scalars (a + b)
-	Scalar operator+(const Scalar &b) const;
-	Scalar operator+(const float &b) const;
+	RightHandSide operator+(Scalar &b);
+	RightHandSide operator+(RightHandSide &b);
+	RightHandSide operator+(const float &b);
 
 	// Subracts two scalars (a - b)
-	Scalar operator-(const Scalar &b) const;
-	Scalar operator-(const float &b) const;
+	RightHandSide operator-(Scalar &b);
+	RightHandSide operator-(RightHandSide &b);
+	RightHandSide operator-(const float &b);
 
 	// Multiplies two scalars (a * b)
-	Scalar operator*(const Scalar &b) const;
-	Scalar operator*(const float &b) const;
+	RightHandSide operator*(Scalar &b);
+	RightHandSide operator*(RightHandSide &b);
+	RightHandSide operator*(const float &b);
 
 	// Divides two scalars (a / b)
-	Scalar operator/(const Scalar &b) const;
-	Scalar operator/(const float &b) const;
+	RightHandSide operator/(Scalar &b);
+	RightHandSide operator/(RightHandSide &b);
+	RightHandSide operator/(const float &b);
 
 	// Assigns derivative links
 	void setDerivatives(std::vector<Scalar *> derivs);
+
+	// Updates the scalar
+	void updateScalar();
 
 private:
 
@@ -120,3 +137,6 @@ private:
 
 // Converts a float to a scalar
 Scalar toScalar(const float &b);
+
+// Converts a scalar to a primitive RHS
+RightHandSide *toRHS(Scalar * b);

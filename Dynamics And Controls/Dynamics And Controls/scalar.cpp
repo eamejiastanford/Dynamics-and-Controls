@@ -5,6 +5,9 @@
 
 void Scalar::printScalar()
 {
+	// Update the scalar
+	updateScalar();
+
 	// Print the name
 	std::cout << sym.name;
 
@@ -30,8 +33,9 @@ void Scalar::printValue()
 
 void Scalar::printRHS()
 {
-	if (sym.name != sym.rhs) {
-		std::cout << " = " << sym.rhs;
+	if (hasRHS) {
+		rhs.sym.name = cleanName(rhs.sym.name);
+		std::cout << " = " << rhs.sym.name;
 	}
 }
 
@@ -57,127 +61,175 @@ void Scalar::printDerivsHelper()
 
 void Scalar::operator=(const std::string & newName)
 {
-	// Set name and default RHS to identity, reset value
+	// Set name, reset value
 	sym.name = newName;
-	sym.rhs = newName;
 	hasVal = false;
 }
 
 void Scalar::operator=(const float & newValue)
 {
-	// Reassign the value and reset RHS to identity
+	// Reassign the value
 	hasVal = true;
 	val = newValue;
-	sym.rhs = sym.name;
 }
 
-void Scalar::operator=(const Scalar & b)
+void Scalar::operator=(const RightHandSide & b)
 {
-	// Set symbolic RHS
-	sym.rhs = cleanName(b.sym.name);
-
-	// Reassign value, if necessary
-	if (b.hasVal) {
-		hasVal = true;
-		val = b.val;
-	}
-
+	// Assign the RHS to the scalar
+	hasRHS = true;
+	rhs = b;
 }
 
-Scalar Scalar::operator+(const Scalar & b) const
+RightHandSide Scalar::operator+(Scalar & b)
 {
-	// Construct a new scalar to return
-	Scalar c;
+	// Construct a new RHS to return
+	RightHandSide *c = new RightHandSide;
 
 	// Add the symbols
-	c.sym.name = "(" + sym.name + " + " + b.sym.name + ")";
+	c->sym.name = "(" + sym.name + " + " + b.sym.name + ")";
 
-	// Add the values, if possible
-	if (hasVal && b.hasVal) {
-		c.hasVal = true;
-		c.val = val + b.val;
-	}
+	// Assign the RHS operands and operation
+	c->a = toRHS(this);
+	c->b = toRHS(&b);
+	c->type = addition;
 
-	// Add the values
-	return c;
+	return *c;
 }
 
-Scalar Scalar::operator+(const float & b) const
+RightHandSide Scalar::operator+(RightHandSide & b)
+{
+	// Construct a new RHS to return
+	RightHandSide *c = new RightHandSide;
+
+	// Add the symbols
+	c->sym.name = "(" + sym.name + " + " + b.sym.name + ")";
+
+	// Assign the RHS operands and operation
+	c->a = toRHS(this);
+	c->b = &b;
+	c->type = addition;
+
+	return *c;
+}
+
+RightHandSide Scalar::operator+(const float & b)
 {
 	// Convert float to scalar and then operate
 	Scalar bScalar = toScalar(b);
 	return bScalar + *this;
 }
 
-Scalar Scalar::operator-(const Scalar & b) const
+RightHandSide Scalar::operator-(Scalar & b)
 {
-	// Construct a new scalar to return
-	Scalar c;
+	// Construct a new RHS to return
+	RightHandSide c;
 
-	// Subtract the symbols
+	// Add the symbols
 	c.sym.name = "(" + sym.name + " - " + b.sym.name + ")";
 
-	// Subtract the values, if possible
-	if (hasVal && b.hasVal) {
-		c.hasVal = true;
-		c.val = val - b.val;
-	}
+	// Assign the RHS operands and operation
+	c.a = toRHS(this);
+	c.b = toRHS(&b);
+	c.type = subtraction;
 
-	// Add the values
 	return c;
 }
 
-Scalar Scalar::operator-(const float & b) const
+RightHandSide Scalar::operator-(RightHandSide & b)
+{
+	// Construct a new RHS to return
+	RightHandSide c;
+
+	// Add the symbols
+	c.sym.name = "(" + sym.name + " - " + b.sym.name + ")";
+
+	// Assign the RHS operands and operation
+	c.a = toRHS(this);
+	c.b = &b;
+	c.type = subtraction;
+
+	return c;
+}
+
+RightHandSide Scalar::operator-(const float & b)
 {
 	// Convert float to scalar and then operate
 	Scalar bScalar = toScalar(b);
 	return bScalar - *this;
 }
 
-Scalar Scalar::operator*(const Scalar & b) const
+RightHandSide Scalar::operator*(Scalar & b)
 {
-	// Construct a new scalar to return
-	Scalar c;
+	// Construct a new RHS to return
+	RightHandSide c;
 
-	// Multiply the symbols and the values
+	// Add the symbols
 	c.sym.name = "(" + sym.name + " * " + b.sym.name + ")";
 
-	// Multiply the values, if possible
-	if (hasVal && b.hasVal) {
-		c.hasVal = true;
-		c.val = val * b.val;
-	}
+	// Assign the RHS operands and operation
+	c.a = toRHS(this);
+	c.b = toRHS(&b);
+	c.type = multiplication;
 
-	// Add the values
 	return c;
 }
 
-Scalar Scalar::operator*(const float & b) const
+RightHandSide Scalar::operator*(RightHandSide & b)
+{
+	// Construct a new RHS to return
+	RightHandSide c;
+
+	// Add the symbols
+	c.sym.name = "(" + sym.name + " * " + b.sym.name + ")";
+
+	// Assign the RHS operands and operation
+	c.a = toRHS(this);
+	c.b = &b;
+	c.type = multiplication;
+
+	return c;
+}
+
+RightHandSide Scalar::operator*(const float & b)
 {
 	// Convert float to scalar and then operate
 	Scalar bScalar = toScalar(b);
 	return bScalar * *this;
 }
 
-Scalar Scalar::operator/(const Scalar & b) const
+RightHandSide Scalar::operator/(Scalar & b)
 {
-	// Construct a new scalar to return
-	Scalar c;
+	// Construct a new RHS to return
+	RightHandSide c;
 
-	// Divide the symbols
+	// Add the symbols
 	c.sym.name = "(" + sym.name + " / " + b.sym.name + ")";
 
-	// Divide the values, if possible
-	if (hasVal && b.hasVal) {
-		c.hasVal = true;
-		c.val = val / b.val;
-	}
+	// Assign the RHS operands and operation
+	c.a = toRHS(this);
+	c.b = toRHS(&b);
+	c.type = division;
 
-	// Add the values
 	return c;
 }
 
-Scalar Scalar::operator/(const float & b) const
+RightHandSide Scalar::operator/(RightHandSide & b)
+{
+	// Construct a new RHS to return
+	RightHandSide c;
+
+	// Add the symbols
+	c.sym.name = "(" + sym.name + " / " + b.sym.name + ")";
+
+	// Assign the RHS operands and operation
+	c.a = toRHS(this);
+	c.b = &b;
+	c.type = division;
+
+	return c;
+}
+
+RightHandSide Scalar::operator/(const float & b)
 {
 	// Convert float to scalar and then operate
 	Scalar bScalar = toScalar(b);
@@ -200,17 +252,42 @@ void Scalar::setDerivatives(std::vector<Scalar *> derivs)
 	}
 }
 
+void Scalar::updateScalar()
+{
+	if (hasRHS) {
+		rhs.sym.name = cleanName(rhs.sym.name);
+		val = rhs.eval();
+		hasVal = true;
+	}
+
+}
+
 Scalar toScalar(const float & b)
 {
-	Scalar bScalar(std::to_string(b));
-	bScalar = b;
-	return bScalar;
+	Scalar *bScalar = new Scalar(std::to_string(b));
+	*bScalar = b;
+	return *bScalar;
+}
+
+RightHandSide *toRHS(Scalar * b)
+{
+	// Construct new RHS
+	RightHandSide *c = new RightHandSide;
+
+	// Assign the scalar to the primitive RHS
+	c->type = primitive;
+	c->prim = b;
+	c->sym = b->sym;
+
+	return c;
 }
 
 float RightHandSide::eval()
 {
+	std::cout << sym.name << ", " << type << std::endl;
+
 	switch (type) {
-	case primitive: return val; // base case
+	case primitive: return prim->val; // base case
 		break;
 	case addition: return a->eval() + b->eval();
 		break;

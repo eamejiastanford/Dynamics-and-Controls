@@ -13,9 +13,6 @@ public:
 	// The name of the symbol, for printing to the screen
 	std::string name;
 
-	// The right hand side of this symbol, for printing to the screen
-	std::string rhs;
-
 	// Prints the symbol as a string
 	void printSymbol();
 

@@ -35,7 +35,8 @@ int main()
 	yp = 12;
 	z = -2;
 	xpp = 2;
-	zpp = toScalar(two) * x + toScalar(four) / (yp - z * xpp);
+	//zpp = toScalar(two) * x + toScalar(four) / (yp + z * xpp);
+	zpp = z * xpp;
 
 	zpp.printScalar();
 
